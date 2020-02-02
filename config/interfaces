@@ -12,11 +12,8 @@ allow-hotplug enp0s3
 iface enp0s3 inet static
 	address 10.0.2.5/24
 	gateway 10.0.2.1
-	# dns-* options are implemented by the resolvconf package, if installed
-	dns-nameservers 10.0.2.1
-	dns-search samdom.example.com
 
 # The primary network interface
 allow-hotplug enp0s8
 iface enp0s8 inet static
-	address 192.168.56.5/24
+	address 10.0.5.5/24

@@ -9,6 +9,15 @@ Reference links:
 * https://wiki.samba.org/index.php/Setting_up_a_Share_Using_Windows_ACLs
 * https://www.tecmint.com/manage-samba4-ad-from-windows-via-rsat/
 
+Use these Network settings for all machines in VirtualBox:
+
+* Adapter 1: Enabled
+  * Attached to: NAT Network
+  * Name: NatNetwork  (10.0.2.0/24 – DHCP & IPv6 disabled)
+* Adapter 2: Enabled
+  * Attached to: Host-only Adapter
+  * Name: VirtualBox Host-Only Ethernet Adapter (10.0.5.0/24 – DHCP & IPv6 disabled)
+
 Download the Debian netinstall image. Boot from it to begin the installation.
 
 * Hostname: DC1.samdom.example.com
@@ -47,7 +56,7 @@ iface enp0s3 inet static
 # The secondary network interface
 allow-hotplug enp0s8
 iface enp0s8 inet static
-        address 192.168.56.5/24
+        address 10.0.5.5/24
 ```
 Make these changes for resolving the local host name to the **/etc/hosts** file (Done with CopyFiles1):
 ```
