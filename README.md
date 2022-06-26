@@ -20,6 +20,10 @@ Use these Network settings for all machines in VirtualBox:
 
 Download the Debian netinstall image. Boot from it to begin the installation.
 
+* Manually set the enp0s3 network interface:
+  * address 10.0.2.5/24
+  * gateway 10.0.2.1
+  * nameserver 8.8.8.8
 * Hostname: DC1.samdom.example.com
 * Leave the root password blank.
 * Enter the desired user name and password for the admin (sudo) account.
