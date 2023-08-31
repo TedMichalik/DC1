@@ -24,7 +24,8 @@ Download the Debian netinstall image. Boot from it to begin the installation.
   * address 10.0.2.5/24
   * gateway 10.0.2.1
   * nameserver 8.8.8.8
-* Hostname: DC1.samdom.example.com
+* Hostname: DC1
+* Domain name: samdom.example.com
 * Leave the root password blank.
 * Enter the desired user name and password for the admin (sudo) account.
 * Make your disk partition selections and write changes to disk.
