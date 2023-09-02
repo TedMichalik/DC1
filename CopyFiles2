@@ -12,23 +12,14 @@ chown 10500:10512 -R /var/lib/samba/sysvol/samdom.example.com/
 # DNS name resolving
 cp /root/DC1/config/resolv.conf2 /etc/resolv.conf
 
-# NTP Time Service
-mv /etc/ntp.conf /etc/ntp.conf.orig
-cp /root/DC1/config/ntp.conf /etc/
-chown root:ntp /var/lib/samba/ntp_signd/
+# Chrony Time Service
+mv /etc/chrony/chrony.conf /etc/chrony/chrony.conf.orig
+cp /root/DC1/config/chrony.conf /etc/chrony/
+mkdir /var/lib/samba/ntp_signd
+chown root:_chrony /var/lib/samba/ntp_signd/
 chmod 750 /var/lib/samba/ntp_signd/
+ntpdate -bu pool.ntp.org
 systemctl restart ntp.service
-
-# WSD Daemon
-cp /root/DC1/config/wsdd /usr/bin/
-cp /root/DC1/config/wsdd.service /etc/systemd/system/
-systemctl daemon-reload
-systemctl enable wsdd.service
-systemctl start wsdd.service
-
-# Authentication
-mv /etc/nsswitch.conf /etc/nsswitch.conf.orig
-cp /root/DC1/config/nsswitch.conf /etc/
 
 # sudo for Domain Admins
 cp /root/DC1/config/SAMDOM /etc/sudoers.d/
