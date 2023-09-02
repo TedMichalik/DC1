@@ -180,36 +180,8 @@ samba-tool domain passwordsettings set --min-pwd-length=6
 samba-tool domain passwordsettings set --max-pwd-age=0
 samba-tool user setexpiry administrator --noexpiry
 ```
-## Install the WSD Daemon which allows Windows Network to detect Linux domain members (Done with CopyFiles2).
-
-Clone git repository and edit file:
-```
-git clone https://github.com/christgau/wsdd
-cd wsdd
-```
-Edit service file nano etc/systemd/wsdd.service
-```
-After=multi-user.target
-Wants=multi-user.target
-ExecStart=/usr/bin/wsdd -d SAMDOM -4 -s
-User=daemon
-Group=daemon
-```
-Copy the files to the correct locations, enable the service, and start it:
-```
-cp src/wsdd.py /usr/bin/wsdd
-cp etc/systemd/wsdd.service /etc/systemd/system
-systemctl daemon-reload
-systemctl enable wsdd.service
-systemctl start wsdd.service
-```
 ## Configure AD Accounts Authentication
 
-Add winbind value for passwd and group lines in the /etc/nsswitch.conf configuration file (Done with CopyFiles2):
-```
-passwd: files systemd winbind
-group:  files systemd winbind
-```
 Enable  entries required for winbind service to automatically create home directories for each domain account at the first login:
 ```
 pam-auth-update
