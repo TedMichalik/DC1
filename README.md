@@ -78,7 +78,7 @@ apt install samba attr winbind libpam-winbind libnss-winbind libpam-krb5 krb5-co
 ```
 Also install some utility programs:
 ```
-apt install smbclient ldb-tools net-tools dnsutils ntp isc-dhcp-server rsync
+apt install smbclient ldb-tools net-tools dnsutils chrony ntpdate isc-dhcp-server rsync
 ```
 Stop and disable all Samba processes,  and remove the default smb.conf file:
 ```
@@ -146,34 +146,32 @@ Verify Kerberos:
 kinit administrator
 klist
 ```
-## Configure NTP (Done with CopyFiles2)
+## Configure Chrony (Done with CopyFiles2)
 
-Add these two lines in the **/etc/ntp.conf** file:
+Add these two lines in the **/etc/chrony/chrony.conf** file:
 ```
-ntpsigndsocket /var/lib/samba/ntp_signd/
-
-...
-
-restrict default kod nomodify notrap nopeer mssntp
+allow 0.0.0.0/0
+ntpsigndsocket  /var/lib/samba/ntp_signd
 ```
-Fix the permissions for the **ntp_signed** directory:
+Create the **ntp_signed** directory:
 ```
-chown root:ntp /var/lib/samba/ntp_signd/
+mkdir /var/lib/samba/ntp_signd/
+chown root:_chrony /var/lib/samba/ntp_signd/
 chmod 750 /var/lib/samba/ntp_signd/
 ```
-Restart the NTP service:
+Restart the Chrony service:
 ```
-systemctl restart ntp.service
+systemctl restart chronyd.service
 ```
-## Check NTP
+## Check Chrony
 
-Verify the NTP service has open sockets:
+Verify the Chrony service has open sockets:
 ```
-netstat -tunlp | grep ntp
+netstat -tunlp | grep chrony
 ```
-Verify the NTP service is syncing with other servers:
+Verify the Chrony service is syncing with other servers:
 ```
-ntpq -p
+chronyc sources
 ```
 ## Ease AD password restrictions for testing, if desired:
 ```
