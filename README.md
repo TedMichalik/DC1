@@ -74,7 +74,7 @@ SSH into the secondary adapter and login as the admin user and switch to root.
 
 Install Samba and packages needed for an AD DC. Use the FQDN (DC1.samdom.example.com) for the servers in the Kerberos setup.
 ```
-apt install samba attr winbind libpam-winbind libnss-winbind libpam-krb5 krb5-config krb5-user
+apt install samba samba-ad-provision attr winbind libpam-winbind libnss-winbind libpam-krb5 krb5-config krb5-user
 ```
 Also install some utility programs:
 ```
