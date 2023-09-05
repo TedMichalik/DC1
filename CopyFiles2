@@ -19,7 +19,7 @@ mkdir /var/lib/samba/ntp_signd
 chown root:_chrony /var/lib/samba/ntp_signd/
 chmod 750 /var/lib/samba/ntp_signd/
 ntpdate -bu pool.ntp.org
-systemctl restart ntp.service
+systemctl restart chrony.service
 
 # sudo for Domain Admins
 cp /root/DC1/config/SAMDOM /etc/sudoers.d/
