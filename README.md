@@ -5,7 +5,6 @@ Reference links:
 
 * https://wiki.samba.org/index.php/Setting_up_Samba_as_an_Active_Directory_Domain_Controller
 * https://wiki.samba.org/index.php/Idmap_config_ad
-* https://github.com/christgau/wsdd
 * https://wiki.samba.org/index.php/Setting_up_a_Share_Using_Windows_ACLs
 * https://www.tecmint.com/manage-samba4-ad-from-windows-via-rsat/
 
@@ -78,7 +77,7 @@ apt install samba samba-ad-provision attr winbind libpam-winbind libnss-winbind 
 ```
 Also install some utility programs:
 ```
-apt install smbclient ldb-tools net-tools dnsutils chrony ntpdate isc-dhcp-server rsync
+apt install smbclient ldb-tools net-tools dnsutils chrony ntpdate isc-dhcp-server rsync wsdd
 ```
 Stop and disable all Samba processes,  and remove the default smb.conf file:
 ```
