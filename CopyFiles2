@@ -10,7 +10,8 @@ cp /root/DC1/RFC2307 /etc/cron.hourly/
 chown 10500:10512 -R /var/lib/samba/sysvol/samdom.example.com/
 
 # DNS name resolving
-cp /root/DC1/config/resolv.conf2 /etc/resolv.conf
+sed -i -nr '/dns-nameservers/!p;$a\\tdns-nameservers 10.0.2.5' /etc/network/interfaces
+resolvconf -u
 
 # Chrony Time Service
 mv /etc/chrony/chrony.conf /etc/chrony/chrony.conf.orig
