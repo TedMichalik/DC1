@@ -5,15 +5,5 @@
 # Static IP
 cp /root/DC1/config/VirtualBox /etc/network/interfaces.d/
 
-# DNS name resolving
-mv /etc/resolv.conf /etc/resolv.conf.orig
-cp /root/DC1/config/resolv.conf /etc/
-
-# Local host name
-mv /etc/hosts /etc/hosts.orig
-cp /root/DC1/config/hosts /etc/
-
 # Default UMASK
-mv /etc/login.defs /etc/login.defs.orig
-cp /root/DC1/config/login.defs /etc/
-
+sed -i -nr '/umask/!p;$asession optional pam_umask.so umask=002' /etc/pam.d/common-session

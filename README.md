@@ -54,14 +54,9 @@ auto enp0s8
 iface enp0s8 inet static
 	address 192.168.56.5/24
 ```
-Make these changes for resolving the local host name to the **/etc/hosts** file (Done with CopyFiles1):
+Add a line to set a system-wide default UMASK in **/etc/pam.d/common-session** (Done with CopyFiles1):
 ```
-127.0.0.1 localhost
-10.0.2.5 DC1.samdom.example.com DC1
-```
-Change the default UMASK in the **/etc/login.defs** file (Done with CopyFiles1):
-```
-UMASK 002
+session optional pam_umask.so umask=022
 ```
 Reboot the machine to switch to the static IP address.
 SSH into the secondary adapter and login as the admin user and switch to root.
