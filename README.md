@@ -67,7 +67,7 @@ apt install samba samba-ad-provision attr winbind libpam-winbind libnss-winbind 
 ```
 Also install some utility programs:
 ```
-apt install smbclient ldb-tools net-tools dnsutils chrony ntpdate isc-dhcp-server rsync wsdd
+apt install smbclient ldb-tools net-tools dnsutils chrony ntpdate isc-dhcp-server rsync wsdd resolvconf
 ```
 Stop and disable all Samba processes,  and remove the default smb.conf file:
 ```
@@ -108,21 +108,22 @@ systemctl enable samba-ad-dc
 reboot
 ```
 Login as the admin user and switch to root.
-Verify the File Server shares provided by the DC:
-```
-smbclient -L localhost -U%
-```
 Copy more config files to their proper location. This also puts the RFC2307 script in cron.hourly to add uidNumber
 and gidNumber to users, computers and groups added to AD. It runs the script and fixes the ownership of Group Policies.
 ```
 DC1/CopyFiles2
 ```
-Make these changes for resolving DNS names to the **/etc/resolv.conf** file (Done with CopyFiles2):
+Replace the dns-nameservers line in **/etc/network/interfaces** with this (Done with CopyFiles2):
 ```
-domain samdom.example.com
-search samdom.example.com
-nameserver 10.0.2.5
-nameserver 8.8.8.8
+dns-nameservers 10.0.2.5
+```
+Update **/etc/resolv.conf**:
+```
+resolvconf -u
+```
+Verify the File Server shares provided by the DC:
+```
+smbclient -L localhost -U%
 ```
 Verify the DNS configuration works correctly:
 ```
