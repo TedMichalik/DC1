@@ -56,7 +56,7 @@ iface enp0s8 inet static
 ```
 Add a line to set a system-wide default UMASK in **/etc/pam.d/common-session** (Done with CopyFiles1):
 ```
-session optional pam_umask.so umask=022
+session optional pam_umask.so umask=002
 ```
 Reboot the machine to switch to the static IP address.
 SSH into the secondary adapter and login as the admin user and switch to root.
