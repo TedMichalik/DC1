@@ -3,8 +3,7 @@
 #		(Fist save originals as *.orig)
 
 # Static IP
-mv /etc/network/interfaces /etc/network/interfaces.orig
-cp /root/DC1/config/interfaces /etc/network/
+cp /root/DC1/config/VirtualBox /etc/network/interfaces.d/
 
 # DNS name resolving
 mv /etc/resolv.conf /etc/resolv.conf.orig

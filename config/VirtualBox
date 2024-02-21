@@ -1,0 +1,6 @@
+# This file describes the VirtualBox network interface
+
+# VirtualBox network interface
+auto enp0s8
+iface enp0s8 inet static
+	address 192.168.56.5/24
