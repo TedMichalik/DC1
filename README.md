@@ -36,7 +36,6 @@ Login as the admin user and switch to root.
 Install git and download these instructions, scripts and configuration files:
 ```
 apt update
-apt dist-upgrade
 apt install git
 git clone https://github.com/TedMichalik/DC1.git
 ```
