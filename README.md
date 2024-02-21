@@ -45,18 +45,14 @@ DC1/CopyFiles1
 ```
 Add a static IP address for the second adapter.
 A second adapter was enabled for SSH logins for configuration and testing in VirtualBox.
-Make these changes to the **/etc/network/interfaces** file (Done with CopyFiles1):
+Create file **/etc/network/interfaces.d/VirtualBox** with this content (Done with CopyFiles1):
 ```
-# The primary network interface
-auto enp0s3
-iface enp0s3 inet static
-        address 10.0.2.5/24
-        gateway 10.0.2.1
+# This file describes the VirtualBox network interface
 
-# The secondary network interface
+# VirtualBox network interface
 auto enp0s8
 iface enp0s8 inet static
-        address 192.168.56.5/24
+	address 192.168.56.5/24
 ```
 Make these changes for resolving the local host name to the **/etc/hosts** file (Done with CopyFiles1):
 ```
