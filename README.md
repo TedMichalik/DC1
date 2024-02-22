@@ -69,36 +69,37 @@ Add a line to set a system-wide default UMASK in **/etc/pam.d/common-session** (
 session optional pam_umask.so umask=002
 ```
 Reboot the machine to switch to the static IP address.
-SSH into the secondary adapter and login as the admin user and switch to root.
+Login as the admin user and switch to root.
 
-Install Samba and packages needed for an AD DC. Use the FQDN (DC1.samdom.example.com) for the servers in the Kerberos setup.
+Copy more config files to their proper location. This also installs Samba, and puts the RFC2307 script in cron.hourly to add uidNumber
+and gidNumber to users, computers and groups added to AD. It runs the script and fixes the ownership of Group Policies.
+```
+DC1/CopyFiles2
+```
+Install Samba and packages needed for an AD DC. Use the FQDN (DC1.samdom.example.com) for the servers in the Kerberos setup (Done with CopyFiles2).
 ```
 apt install samba samba-ad-provision attr winbind libpam-winbind libnss-winbind libpam-krb5 krb5-config krb5-user
 ```
-Also install some utility programs:
+Also install some utility programs (Done with CopyFiles2):
 ```
 apt install smbclient ldb-tools net-tools dnsutils chrony ntpdate isc-dhcp-server rsync wsdd resolvconf
 ```
-Stop and disable all Samba processes,  and remove the default smb.conf file:
+Stop and disable all Samba processes, and remove the default smb.conf file (Done with CopyFiles2):
 ```
 systemctl stop smbd nmbd winbind
 systemctl disable smbd nmbd winbind
 mv /etc/samba/smb.conf /etc/samba/smb.conf.orig
 ```
-Provision the Samba AD, giving your desired password for the Administrator:
+Provision the Samba AD, giving your desired password for the Administrator (Done with CopyFiles2):
 ```
 samba-tool domain provision --use-rfc2307 --interactive
-Realm=SAMDOM.EXAMPLE.COM
-Domain=SAMDOM
-Server Role=dc
-DNS backend=SAMBA_INTERNAL
-DNS forwarder IP address=8.8.8.8
+* Realm=SAMDOM.EXAMPLE.COM
+* Domain=SAMDOM
+* Server Role=dc
+* DNS backend=SAMBA_INTERNAL
+* DNS forwarder IP address=8.8.8.8
 ```
-Edit the Samba configuration file:
-```
-DC1/EditSMB
-```
-These lines are added by the EditSMB script to the [global] section of **/etc/samba/smb.conf**
+Add these lines to the [global] section of **/etc/samba/smb.conf** (Done with CopyFiles2)
 ```
 interfaces = enp0s3
 winbind nss info = rfc2307
@@ -109,87 +110,45 @@ winbind enum groups = yes
 protocol = SMB3
 usershare max shares = 0
 ```
-Use the Samba created Kerberos configuration file for your DC, enable the correct Samba services:
+Use the Samba created Kerberos configuration file for your DC, enable the correct Samba services (Done with CopyFiles2):
 ```
 cp /var/lib/samba/private/krb5.conf /etc/
 systemctl unmask samba-ad-dc
 systemctl start samba-ad-dc
 systemctl enable samba-ad-dc
 ```
-Copy more config files to their proper location. This also puts the RFC2307 script in cron.hourly to add uidNumber
-and gidNumber to users, computers and groups added to AD. It runs the script and fixes the ownership of Group Policies.
+Copy script to cron.hourly that sets RFC2307 attributes in the SAMBA AD DC and run it (Done with CopyFiles2):
 ```
-DC1/CopyFiles2
+cp /root/DC1/RFC2307 /etc/cron.hourly/
+/etc/cron.hourly/RFC2307
+```
+Fix permissions for the domain on sysvol (Done with CopyFiles2):
+```
+chown 10500:10512 -R /var/lib/samba/sysvol/samdom.example.com/
 ```
 Replace the dns-nameservers line in **/etc/network/interfaces** with this (Done with CopyFiles2):
 ```
 dns-nameservers 10.0.2.5
 ```
-Reboot to make sure everything works:
-```
-reboot
-```
-Login as the admin user and switch to root. Verify the File Server shares provided by the DC:
-```
-smbclient -L localhost -U%
-```
-Verify the DNS configuration works correctly:
-```
-host -t SRV _ldap._tcp.samdom.example.com.
-host -t SRV _kerberos._udp.samdom.example.com.
-host -t A dc1.samdom.example.com.
-```
-Verify Kerberos:
-```
-kinit administrator
-klist
-```
-## Configure Chrony (Done with CopyFiles2)
+Configure Chrony (Done with CopyFiles2)
 
-Add these two lines in the **/etc/chrony/chrony.conf** file:
+Add these two lines in the **/etc/chrony/chrony.conf** file (Done with CopyFiles2):
 ```
 allow 0.0.0.0/0
 ntpsigndsocket  /var/lib/samba/ntp_signd
 ```
-Create the **ntp_signed** directory:
+Create the **ntp_signed** directory (Done with CopyFiles2):
 ```
 mkdir /var/lib/samba/ntp_signd/
 chown root:_chrony /var/lib/samba/ntp_signd/
 chmod 750 /var/lib/samba/ntp_signd/
-```
-Restart the Chrony service:
-```
-systemctl restart chronyd.service
-```
-## Check Chrony
-
-Verify the Chrony service has open sockets:
-```
-netstat -tunlp | grep chrony
-```
-Verify the Chrony service is syncing with other servers:
-```
-chronyc sources
-```
-## Ease AD password restrictions for testing, if desired:
-```
-samba-tool domain passwordsettings set --complexity=off
-samba-tool domain passwordsettings set --min-pwd-length=6
-samba-tool domain passwordsettings set --max-pwd-age=0
-samba-tool user setexpiry administrator --noexpiry
-```
-## Configure AD Accounts Authentication
-
-Enable  entries required for winbind service to automatically create home directories for each domain account at the first login:
-```
-pam-auth-update
 ```
 Give sudo access to members of “domain admins” (Done with CopyFiles2):
 ```
 echo "%SAMDOM\\domain\ admins ALL=(ALL) ALL" > /etc/sudoers.d/SAMDOM
 chmod 0440 /etc/sudoers.d/SAMDOM
 ```
-## Configure the DHCP Service (Done with CopyFiles2):
+Configure the DHCP Service (Done with CopyFiles2):
 
 Just use IPv4 on the NatNetwork with these edits to the /etc/default/isc-dhcp-server configuration file:
 ```
@@ -239,9 +198,51 @@ range 10.0.2.50 10.0.2.100;
 option routers 10.0.2.1;
 }
 ```
-Restart the service:
+Reboot to make sure everything works:
 ```
-systemctl restart isc-dhcp-server.service
+reboot
+```
+## Test the AD DC
+SSH into the secondary adapter and login as the admin user and switch to root.
+
+Verify the File Server shares provided by the DC:
+(Note: This may give a timeout error the first time)
+```
+smbclient -L localhost -U%
+```
+Verify the DNS configuration works correctly:
+```
+host -t SRV _ldap._tcp.samdom.example.com.
+host -t SRV _kerberos._udp.samdom.example.com.
+host -t A dc1.samdom.example.com.
+```
+Verify Kerberos:
+```
+kinit administrator
+klist
+```
+Check Chrony
+
+Verify the Chrony service has open sockets:
+```
+netstat -tunlp | grep chrony
+```
+Verify the Chrony service is syncing with other servers:
+```
+chronyc sources
+```
+## Ease AD password restrictions for testing, if desired:
+```
+samba-tool domain passwordsettings set --complexity=off
+samba-tool domain passwordsettings set --min-pwd-length=6
+samba-tool domain passwordsettings set --max-pwd-age=0
+samba-tool user setexpiry administrator --noexpiry
+```
+## Configure AD Accounts Authentication
+
+Enable entry for winbind service to automatically create home directories for each domain account at the first login:
+```
+pam-auth-update
 ```
 ## Test the AD DC
 
@@ -268,7 +269,7 @@ chown ted:"Domain Admins" /tmp/testfile
 ls -l /tmp/testfile
 ```
 
-## Join a Windows 10 Pro Desktop to the SAMDOM Domain
+## Join a Windows 10/11 Pro Desktop to the SAMDOM Domain
 
 After joining the Windows desktop to the Domain, login with your **Domain Admins** account.
 
