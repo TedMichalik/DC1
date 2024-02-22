@@ -8,6 +8,16 @@ Reference links:
 * https://wiki.samba.org/index.php/Setting_up_a_Share_Using_Windows_ACLs
 * https://www.tecmint.com/manage-samba4-ad-from-windows-via-rsat/
 
+Create a machine in VirtualBox:
+
+* Name: DB1
+* Type: Linux
+* Version: Debian (64-bit)
+* CPUs: 1
+* RAM: 1024 MB
+* Virtual HD: 8.00 GB
+* HD Type: VDI, dynamically allocated
+
 Use these Network settings for all machines in VirtualBox:
 
 * Adapter 1: Enabled
