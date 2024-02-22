@@ -109,15 +109,13 @@ winbind enum groups = yes
 protocol = SMB3
 usershare max shares = 0
 ```
-Use the Samba created Kerberos configuration file for your DC, enable the correct Samba services, and reboot to make sure everything works:
+Use the Samba created Kerberos configuration file for your DC, enable the correct Samba services:
 ```
 cp /var/lib/samba/private/krb5.conf /etc/
 systemctl unmask samba-ad-dc
 systemctl start samba-ad-dc
 systemctl enable samba-ad-dc
-reboot
 ```
-Login as the admin user and switch to root.
 Copy more config files to their proper location. This also puts the RFC2307 script in cron.hourly to add uidNumber
 and gidNumber to users, computers and groups added to AD. It runs the script and fixes the ownership of Group Policies.
 ```
@@ -127,11 +125,11 @@ Replace the dns-nameservers line in **/etc/network/interfaces** with this (Done 
 ```
 dns-nameservers 10.0.2.5
 ```
-Update **/etc/resolv.conf**:
+Reboot to make sure everything works:
 ```
-resolvconf -u
+reboot
 ```
-Verify the File Server shares provided by the DC:
+Login as the admin user and switch to root. Verify the File Server shares provided by the DC:
 ```
 smbclient -L localhost -U%
 ```
