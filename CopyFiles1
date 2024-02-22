@@ -1,9 +1,0 @@
-#!/bin/bash
-# CopyFiles1 - Script #1 to copy configuration files to their proper location.
-#		(Fist save originals as *.orig)
-
-# Static IP
-cp /root/DC1/config/VirtualBox /etc/network/interfaces.d/
-
-# Default UMASK
-sed -i -nr '/umask/!p;$asession optional pam_umask.so umask=002' /etc/pam.d/common-session
