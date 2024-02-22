@@ -2,6 +2,29 @@
 # CopyFiles2 - Script #2 to copy configuration files to their proper location.
 #		(Fist save originals as *.orig)
 
+# Install Samba and packages needed for an AD DC. Use the FQDN (DC1.samdom.example.com) for the servers in the Kerberos setup.
+apt install samba samba-ad-provision attr winbind libpam-winbind libnss-winbind libpam-krb5 krb5-config krb5-user
+
+# Also install some utility programs:
+apt install smbclient ldb-tools net-tools dnsutils chrony ntpdate isc-dhcp-server rsync wsdd resolvconf
+
+# Stop and disable all Samba processes,  and remove the default smb.conf file:
+systemctl stop smbd nmbd winbind
+systemctl disable smbd nmbd winbind
+mv /etc/samba/smb.conf /etc/samba/smb.conf.orig
+
+# Provision the Samba AD, giving your desired password for the Administrator:
+samba-tool domain provision --use-rfc2307 --interactive
+
+# Edit the Samba configuration file:
+sed -i '/rfc2307/r /root/DC1/config/smb.insert' /etc/samba/smb.conf
+
+# Use the Samba created Kerberos configuration file for your DC, enable the correct Samba services:
+cp /var/lib/samba/private/krb5.conf /etc/
+systemctl unmask samba-ad-dc
+systemctl start samba-ad-dc
+systemctl enable samba-ad-dc
+
 # Copy script to cron.hourly that sets RFC2307 attributes in the SAMBA AD DC
 cp /root/DC1/RFC2307 /etc/cron.hourly/
 /etc/cron.hourly/RFC2307
@@ -11,7 +34,6 @@ chown 10500:10512 -R /var/lib/samba/sysvol/samdom.example.com/
 
 # DNS name resolving
 sed -i -nr '/dns-nameservers/!p;$a\\tdns-nameservers 10.0.2.5' /etc/network/interfaces
-resolvconf -u
 
 # Chrony Time Service
 mv /etc/chrony/chrony.conf /etc/chrony/chrony.conf.orig
