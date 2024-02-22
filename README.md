@@ -49,48 +49,29 @@ apt update
 apt install git
 git clone https://github.com/TedMichalik/DC1.git
 ```
-Copy config files to their proper location:
+## Install software and copy config files to their proper location:
 ```
-DC1/CopyFiles1
+DC1/CopyFiles
 ```
-Add a static IP address for the second adapter.
-A second adapter was enabled for SSH logins for configuration and testing in VirtualBox.
-Create file **/etc/network/interfaces.d/VirtualBox** with this content (Done with CopyFiles1):
-```
-# This file describes the VirtualBox network interface
-
-# VirtualBox network interface
-auto enp0s8
-iface enp0s8 inet static
-	address 192.168.56.5/24
-```
-Add a line to set a system-wide default UMASK in **/etc/pam.d/common-session** (Done with CopyFiles1):
+Add a line to set a system-wide default UMASK in **/etc/pam.d/common-session** (Done with CopyFiles):
 ```
 session optional pam_umask.so umask=002
 ```
-Reboot the machine to switch to the static IP address.
-Login as the admin user and switch to root.
-
-Copy more config files to their proper location. This also installs Samba, and puts the RFC2307 script in cron.hourly to add uidNumber
-and gidNumber to users, computers and groups added to AD. It runs the script and fixes the ownership of Group Policies.
+Install Samba and packages needed for an AD DC. Use the FQDN (DC1.samdom.example.com) for the servers in the Kerberos setup (Done with CopyFiles).
 ```
-DC1/CopyFiles2
+apt install -y samba samba-ad-provision attr winbind libpam-winbind libnss-winbind libpam-krb5 krb5-config krb5-user
 ```
-Install Samba and packages needed for an AD DC. Use the FQDN (DC1.samdom.example.com) for the servers in the Kerberos setup (Done with CopyFiles2).
+Also install some utility programs (Done with CopyFiles):
 ```
-apt install samba samba-ad-provision attr winbind libpam-winbind libnss-winbind libpam-krb5 krb5-config krb5-user
+apt install -y smbclient ldb-tools net-tools dnsutils chrony ntpdate isc-dhcp-server rsync wsdd resolvconf
 ```
-Also install some utility programs (Done with CopyFiles2):
-```
-apt install smbclient ldb-tools net-tools dnsutils chrony ntpdate isc-dhcp-server rsync wsdd resolvconf
-```
-Stop and disable all Samba processes, and remove the default smb.conf file (Done with CopyFiles2):
+Stop and disable all Samba processes, and remove the default smb.conf file (Done with CopyFiles):
 ```
 systemctl stop smbd nmbd winbind
 systemctl disable smbd nmbd winbind
 mv /etc/samba/smb.conf /etc/samba/smb.conf.orig
 ```
-Provision the Samba AD, giving your desired password for the Administrator (Done with CopyFiles2):
+Provision the Samba AD, giving your desired password for the Administrator (Done with CopyFiles):
 ```
 samba-tool domain provision --use-rfc2307 --interactive
 * Realm=SAMDOM.EXAMPLE.COM
@@ -99,7 +80,7 @@ samba-tool domain provision --use-rfc2307 --interactive
 * DNS backend=SAMBA_INTERNAL
 * DNS forwarder IP address=8.8.8.8
 ```
-Add these lines to the [global] section of **/etc/samba/smb.conf** (Done with CopyFiles2)
+Add these lines to the [global] section of **/etc/samba/smb.conf** (Done with CopyFiles)
 ```
 interfaces = enp0s3
 winbind nss info = rfc2307
@@ -110,45 +91,45 @@ winbind enum groups = yes
 protocol = SMB3
 usershare max shares = 0
 ```
-Use the Samba created Kerberos configuration file for your DC, enable the correct Samba services (Done with CopyFiles2):
+Use the Samba created Kerberos configuration file for your DC, enable the correct Samba services (Done with CopyFiles):
 ```
 cp /var/lib/samba/private/krb5.conf /etc/
 systemctl unmask samba-ad-dc
 systemctl start samba-ad-dc
 systemctl enable samba-ad-dc
 ```
-Copy script to cron.hourly that sets RFC2307 attributes in the SAMBA AD DC and run it (Done with CopyFiles2):
+Copy script to cron.hourly that sets RFC2307 attributes in the SAMBA AD DC and run it (Done with CopyFiles):
 ```
 cp /root/DC1/RFC2307 /etc/cron.hourly/
 /etc/cron.hourly/RFC2307
 ```
-Fix permissions for the domain on sysvol (Done with CopyFiles2):
+Fix permissions for the domain on sysvol (Done with CopyFiles):
 ```
 chown 10500:10512 -R /var/lib/samba/sysvol/samdom.example.com/
 ```
-Replace the dns-nameservers line in **/etc/network/interfaces** with this (Done with CopyFiles2):
+Replace the dns-nameservers line in **/etc/network/interfaces** with this (Done with CopyFiles):
 ```
 dns-nameservers 10.0.2.5
 ```
-Configure Chrony (Done with CopyFiles2)
+Configure Chrony (Done with CopyFiles)
 
-Add these two lines in the **/etc/chrony/chrony.conf** file (Done with CopyFiles2):
+Add these two lines in the **/etc/chrony/chrony.conf** file (Done with CopyFiles):
 ```
 allow 0.0.0.0/0
 ntpsigndsocket  /var/lib/samba/ntp_signd
 ```
-Create the **ntp_signed** directory (Done with CopyFiles2):
+Create the **ntp_signed** directory (Done with CopyFiles):
 ```
 mkdir /var/lib/samba/ntp_signd/
 chown root:_chrony /var/lib/samba/ntp_signd/
 chmod 750 /var/lib/samba/ntp_signd/
 ```
-Give sudo access to members of “domain admins” (Done with CopyFiles2):
+Give sudo access to members of “domain admins” (Done with CopyFiles):
 ```
 echo "%SAMDOM\\domain\ admins ALL=(ALL) ALL" > /etc/sudoers.d/SAMDOM
 chmod 0440 /etc/sudoers.d/SAMDOM
 ```
-Configure the DHCP Service (Done with CopyFiles2):
+Configure the DHCP Service (Done with CopyFiles):
 
 Just use IPv4 on the NatNetwork with these edits to the /etc/default/isc-dhcp-server configuration file:
 ```
@@ -197,6 +178,17 @@ subnet 10.0.2.0 netmask 255.255.255.0 {
 range 10.0.2.50 10.0.2.100;
 option routers 10.0.2.1;
 }
+```
+Add a static IP address for the second adapter.
+A second adapter was enabled for SSH logins for configuration and testing in VirtualBox.
+Create file **/etc/network/interfaces.d/VirtualBox** with this content (Done with CopyFiles):
+```
+# This file describes the VirtualBox network interface
+
+# VirtualBox network interface
+auto enp0s8
+iface enp0s8 inet static
+	address 192.168.56.5/24
 ```
 Reboot to make sure everything works:
 ```
