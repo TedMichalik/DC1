@@ -1,15 +1,15 @@
 #!/bin/bash
-# CopyFiles2 - Script #2 to copy configuration files to their proper location.
+# CopyFiles - Script to install Samba AD DC and copy configuration files to their proper location.
 #		(Fist save originals as *.orig)
 
 # Default UMASK
 sed -i -nr '/umask/!p;$asession optional pam_umask.so umask=002' /etc/pam.d/common-session
 
 # Install Samba and packages needed for an AD DC. Use the FQDN (DC1.samdom.example.com) for the servers in the Kerberos setup.
-apt install samba samba-ad-provision attr winbind libpam-winbind libnss-winbind libpam-krb5 krb5-config krb5-user
+apt install -y samba samba-ad-provision attr winbind libpam-winbind libnss-winbind libpam-krb5 krb5-config krb5-user
 
 # Also install some utility programs:
-apt install smbclient ldb-tools net-tools dnsutils chrony ntpdate isc-dhcp-server rsync wsdd resolvconf
+apt install -y smbclient ldb-tools net-tools dnsutils chrony ntpdate isc-dhcp-server rsync wsdd resolvconf
 
 # Stop and disable all Samba processes,  and remove the default smb.conf file:
 systemctl stop smbd nmbd winbind
