@@ -2,6 +2,9 @@
 # CopyFiles2 - Script #2 to copy configuration files to their proper location.
 #		(Fist save originals as *.orig)
 
+# Default UMASK
+sed -i -nr '/umask/!p;$asession optional pam_umask.so umask=002' /etc/pam.d/common-session
+
 # Install Samba and packages needed for an AD DC. Use the FQDN (DC1.samdom.example.com) for the servers in the Kerberos setup.
 apt install samba samba-ad-provision attr winbind libpam-winbind libnss-winbind libpam-krb5 krb5-config krb5-user
 
@@ -41,8 +44,6 @@ cp /root/DC1/config/chrony.conf /etc/chrony/
 mkdir /var/lib/samba/ntp_signd
 chown root:_chrony /var/lib/samba/ntp_signd/
 chmod 750 /var/lib/samba/ntp_signd/
-ntpdate -bu pool.ntp.org
-systemctl restart chrony.service
 
 # sudo for Domain Admins
 cp /root/DC1/config/SAMDOM /etc/sudoers.d/
@@ -52,4 +53,6 @@ mv /etc/default/isc-dhcp-server /etc/default/isc-dhcp-server.orig
 cp /root/DC1/config/isc-dhcp-server /etc/default/
 mv /etc/dhcp/dhcpd.conf /etc/dhcp/dhcpd.conf.orig
 cp /root/DC1/config/dhcpd.conf /etc/dhcp/
-systemctl restart isc-dhcp-server.service
+
+# Static IP for VirtualBox network interface
+cp /root/DC1/config/VirtualBox /etc/network/interfaces.d/
