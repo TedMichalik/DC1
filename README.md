@@ -118,12 +118,6 @@ Add these two lines in the **/etc/chrony/chrony.conf** file (Done with CopyFiles
 allow 0.0.0.0/0
 ntpsigndsocket  /var/lib/samba/ntp_signd
 ```
-Create the **ntp_signed** directory (Done with CopyFiles):
-```
-mkdir /var/lib/samba/ntp_signd/
-chown root:_chrony /var/lib/samba/ntp_signd/
-chmod 750 /var/lib/samba/ntp_signd/
-```
 Give sudo access to members of “domain admins” (Done with CopyFiles):
 ```
 echo "%SAMDOM\\domain\ admins ALL=(ALL) ALL" > /etc/sudoers.d/SAMDOM
