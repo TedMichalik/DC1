@@ -41,9 +41,6 @@ sed -i -nr '/dns-nameservers/!p;$a\\tdns-nameservers 10.0.2.5' /etc/network/inte
 # Chrony Time Service
 mv /etc/chrony/chrony.conf /etc/chrony/chrony.conf.orig
 cp /root/DC1/config/chrony.conf /etc/chrony/
-mkdir /var/lib/samba/ntp_signd
-chown root:_chrony /var/lib/samba/ntp_signd/
-chmod 750 /var/lib/samba/ntp_signd/
 
 # sudo for Domain Admins
 cp /root/DC1/config/SAMDOM /etc/sudoers.d/
